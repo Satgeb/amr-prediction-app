@@ -111,54 +111,108 @@ def predict_amr(
 
     return result[0]
 
+
 st.title("AMR Prediction")
 
-
-serovar = st.text_input(
-    "Serovar"
+st.write(
+    "Enter the details of the Salmonella isolate "
+    "to predict its AMR class."
 )
 
-
-source = st.text_input(
-    "Isolation source"
+serovar = st.text_input("Serovar")
+st.caption(
+    "The specific type of Salmonella enterica, "
+    "such as Enteritidis or Typhimurium."
 )
 
-
-snp = st.text_input(
-    "SNP cluster"
+source = st.text_input("Isolation source")
+st.caption(
+    "Where the bacterial sample was collected, "
+    "such as from a human, animal, food, or the environment."
 )
 
+snp = st.text_input("SNP cluster")
+st.caption(
+    "The identifier of the genetic cluster to which "
+    "the isolate belongs, based on SNP analysis."
+)
 
 min_same = st.number_input(
-    "Min-same"
+    "Min-same",
+    min_value=0,
+    step=1
 )
-
+st.caption(
+    "Minimum SNP distance to an isolate of the same "
+    "isolation type within the relevant cluster."
+)
 
 min_diff = st.number_input(
-    "Min-diff"
+    "Min-diff",
+    min_value=0,
+    step=1
 )
-
+st.caption(
+    "Minimum SNP distance to an isolate of a different "
+    "isolation type within the relevant cluster."
+)
 
 
 if st.button("Predict"):
 
+    # Check that all required inputs are provided
+    if not serovar.strip():
+        st.warning("Please enter the Serovar.")
 
-    result = predict_amr(
+    elif not source.strip():
+        st.warning("Please enter the Isolation source.")
 
-        serovar,
+    elif not snp.strip():
+        st.warning("Please enter the SNP cluster.")
 
-        source,
+    else:
+        # Run prediction only after validation
+        result = predict_amr(
+            serovar,
+            source,
+            snp,
+            min_same,
+            min_diff
+        )
 
-        snp,
+        # Display prediction
+        st.success(f"Predicted AMR class: {result}")
 
-        min_same,
+        # Display interpretation
+        st.subheader("Interpretation")
 
-        min_diff
+        if str(result).strip().title() == "Low":
+            st.info(
+                "The model predicts a low AMR gene burden, "
+                "corresponding to 0 or 1 antimicrobial "
+                "resistance gene."
+            )
 
-    )
+        elif str(result).strip().title() == "Moderate":
+            st.warning(
+                "The model predicts a moderate AMR gene burden, "
+                "corresponding to 2 to 5 antimicrobial "
+                "resistance genes."
+            )
 
+        elif str(result).strip().title() == "High":
+            st.error(
+                "The model predicts a high AMR gene burden, "
+                "corresponding to more than 5 antimicrobial "
+                "resistance genes."
+            )
 
-    st.success(
-        f"Predicted AMR class: {result}"
-    )
+        else:
+            st.info(
+                "No interpretation is available for this class."
+            )
 
+st.caption(
+            "This is a machine-learning prediction and does not "
+            "confirm resistance to a specific antibiotic."
+        )
