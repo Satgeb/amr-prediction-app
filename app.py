@@ -112,11 +112,11 @@ def predict_amr(
     return result[0]
 
 
-st.title("AMR Prediction")
+st.title("Antibiotic Resistance Gene Burden Prediction")
 
 st.write(
     "Enter the details of the Salmonella isolate "
-    "to predict its AMR class."
+    "to predict its AMR gene burden nature or how many resistance gene present"
 )
 
 serovar = st.text_input("Serovar")
